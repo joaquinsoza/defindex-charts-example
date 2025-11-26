@@ -22,17 +22,22 @@ function formatDate(timestamp: string): string {
   });
 }
 
-function formatValue(value: number): string {
-  const absValue = Math.abs(value);
-  if (absValue >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
-  if (absValue >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
-  if (absValue >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
-  if (absValue >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
-  return value.toFixed(0);
+function formatValueAxis(value: number): string {
+  const dollars = value / 1e7;
+  const absDollars = Math.abs(dollars);
+  if (absDollars >= 1e6) return `$${(dollars / 1e6).toFixed(1)}M`;
+  if (absDollars >= 1e3) return `$${(dollars / 1e3).toFixed(0)}K`;
+  return `$${dollars.toFixed(0)}`;
 }
 
-function formatFullNumber(value: number): string {
-  return (value / 1e7).toFixed(7);
+function formatCurrency(value: number): string {
+  const dollars = value / 1e7;
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(dollars);
 }
 
 interface TooltipPayloadItem {
@@ -72,21 +77,21 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
           <span className="inline-block w-3 h-3 rounded mr-2" style={{ backgroundColor: '#22c55e' }} />
           <span className="text-muted-foreground">Deposits: </span>
           <span className="font-semibold text-green-500">
-            +{formatFullNumber(data.deposits)}
+            +{formatCurrency(data.deposits)}
           </span>
         </p>
         <p className="text-sm">
           <span className="inline-block w-3 h-3 rounded mr-2" style={{ backgroundColor: '#ef4444' }} />
           <span className="text-muted-foreground">Withdrawals: </span>
           <span className="font-semibold text-red-500">
-            -{formatFullNumber(Math.abs(data.withdrawals))}
+            -{formatCurrency(Math.abs(data.withdrawals))}
           </span>
         </p>
         <div className="border-t border-border pt-1 mt-1">
           <p className="text-sm">
             <span className="text-muted-foreground">Net Flow: </span>
             <span className={`font-semibold ${data.netFlow >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-              {data.netFlow >= 0 ? '+' : ''}{formatFullNumber(data.netFlow)}
+              {data.netFlow >= 0 ? '+' : ''}{formatCurrency(data.netFlow)}
             </span>
           </p>
         </div>
@@ -120,7 +125,7 @@ export function FlowChart({ data }: FlowChartProps) {
             axisLine={false}
           />
           <YAxis
-            tickFormatter={formatValue}
+            tickFormatter={formatValueAxis}
             tick={{ fontSize: 12, fill: '#6b7280' }}
             tickLine={false}
             axisLine={false}

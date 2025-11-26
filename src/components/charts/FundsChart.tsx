@@ -20,16 +20,29 @@ function formatDate(timestamp: string): string {
   });
 }
 
-function formatFunds(value: number): string {
-  if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
-  if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
-  if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
-  if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
-  return value.toFixed(0);
+function formatFundsAxis(value: number): string {
+  const dollars = value / 1e7;
+  if (dollars >= 1e6) return `$${(dollars / 1e6).toFixed(1)}M`;
+  if (dollars >= 1e3) return `$${(dollars / 1e3).toFixed(0)}K`;
+  return `$${dollars.toFixed(0)}`;
 }
 
-function formatFullNumber(value: number): string {
-  return (value / 1e7).toFixed(7);
+function formatCurrency(value: number): string {
+  const dollars = value / 1e7;
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(dollars);
+}
+
+function formatNumber(value: number): string {
+  const converted = value / 1e7;
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(converted);
 }
 
 interface TooltipPayloadItem {
@@ -65,13 +78,13 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
         <p className="text-sm">
           <span className="text-muted-foreground">Total Funds: </span>
           <span className="font-semibold text-foreground">
-            {formatFullNumber(data.fundsValue)}
+            {formatCurrency(data.fundsValue)}
           </span>
         </p>
         <p className="text-sm">
           <span className="text-muted-foreground">Total Supply: </span>
           <span className="font-semibold text-foreground">
-            {formatFullNumber(data.supplyValue)}
+            {formatNumber(data.supplyValue)}
           </span>
         </p>
       </div>
@@ -114,7 +127,7 @@ export function FundsChart({ data }: FundsChartProps) {
           />
           <YAxis
             domain={[minValue - padding, maxValue + padding]}
-            tickFormatter={formatFunds}
+            tickFormatter={formatFundsAxis}
             tick={{ fontSize: 12, fill: '#6b7280' }}
             tickLine={false}
             axisLine={false}

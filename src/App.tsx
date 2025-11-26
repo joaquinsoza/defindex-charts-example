@@ -46,7 +46,7 @@ function App() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">DeFi Vault Chart Viewer</h1>
+        <h1 className="text-2xl font-bold text-foreground">DeFindex Vault Chart Viewer</h1>
         <p className="text-muted-foreground mt-1">
           Paste your vault JSON data to visualize metrics
         </p>
