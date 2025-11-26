@@ -1,33 +1,31 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { exampleVaultDataJson } from '@/data/exampleVaultData';
 
 interface JsonInputProps {
   value: string;
   onChange: (value: string) => void;
   error: string | null;
   onReset: () => void;
+  title?: string;
+  description?: string;
 }
 
-export function JsonInput({ value, onChange, error, onReset }: JsonInputProps) {
-  const isDefault = value === exampleVaultDataJson;
-
+export function JsonInput({ value, onChange, error, onReset, title = 'JSON Input', description = 'Paste your JSON data here' }: JsonInputProps) {
   return (
-    <Card className="h-full flex flex-col overflow-hidden">
+    <Card className="h-full flex flex-col overflow-hidden min-h-[400px]">
       <CardHeader className="pb-2 flex-shrink-0">
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle>JSON Input</CardTitle>
+            <CardTitle>{title}</CardTitle>
             <CardDescription className="mt-1">
-              Paste your vault data JSON here
+              {description}
             </CardDescription>
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={onReset}
-            disabled={isDefault}
           >
             Reset to Example
           </Button>

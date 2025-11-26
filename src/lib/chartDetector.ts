@@ -1,6 +1,7 @@
 import type { VaultData } from '@/types/vault';
+import type { UserPerformanceData } from '@/types/userPerformance';
 
-export type DataType = 'vault' | 'unknown';
+export type DataType = 'vault' | 'user' | 'unknown';
 
 export interface DetectionResult {
   type: DataType;
@@ -17,6 +18,7 @@ function isVaultData(data: unknown): data is VaultData {
     typeof obj.vaultAddress === 'string' &&
     typeof obj.vaultName === 'string' &&
     typeof obj.vaultSymbol === 'string' &&
+    typeof obj.accountAddress !== 'string' && // Not user data
     Array.isArray(obj.data) &&
     obj.data.length > 0 &&
     typeof (obj.data[0] as Record<string, unknown>)?.vaultPPS === 'number' &&
@@ -24,7 +26,30 @@ function isVaultData(data: unknown): data is VaultData {
   );
 }
 
+function isUserPerformanceData(data: unknown): data is UserPerformanceData {
+  if (typeof data !== 'object' || data === null) return false;
+
+  const obj = data as Record<string, unknown>;
+
+  return (
+    typeof obj.accountAddress === 'string' &&
+    typeof obj.vaultAddress === 'string' &&
+    typeof obj.vaultName === 'string' &&
+    typeof obj.vaultSymbol === 'string' &&
+    typeof obj.currentPosition === 'object' &&
+    typeof obj.performance === 'object' &&
+    Array.isArray(obj.data) &&
+    obj.data.length > 0 &&
+    typeof (obj.data[0] as Record<string, unknown>)?.positionValue === 'string' &&
+    typeof (obj.data[0] as Record<string, unknown>)?.timestamp === 'string'
+  );
+}
+
 export function detectDataType(data: unknown): DetectionResult {
+  if (isUserPerformanceData(data)) {
+    return { type: 'user', isValid: true };
+  }
+
   if (isVaultData(data)) {
     return { type: 'vault', isValid: true };
   }
@@ -32,7 +57,7 @@ export function detectDataType(data: unknown): DetectionResult {
   return {
     type: 'unknown',
     isValid: false,
-    error: 'Unknown data format. Expected vault data with vaultAddress, vaultName, vaultSymbol, and data array.',
+    error: 'Unknown data format. Expected vault or user performance data.',
   };
 }
 
